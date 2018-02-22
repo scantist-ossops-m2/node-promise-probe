@@ -28,6 +28,14 @@ export interface IVideoStream extends IStream {
   display_aspect_ratio: string
   pix_fmt: string
   level: number
+  width: number
+  height: number
+  color_range: string
+  color_space: string
+  color_transfer: string
+  color_primaries: string
+  chroma_location: string
+
 }
 export interface IAudioStream extends IStream {
   sample_fmt:string
@@ -51,8 +59,8 @@ export interface IStream { // TODO: must be typed better
   codec_time_base: string
   codec_tag_string: string
   codec_tag: string
-  width: number
-  height: number
+  width?: number
+  height?: number
   coded_width: number
   coded_height: number
   has_b_frames: number
@@ -103,8 +111,8 @@ export interface IStream { // TODO: must be typed better
 export interface IFfprobe {
   streams: IStream[],
   format: IFFFormat,
-  audio:IAudioStream
-  video:IVideoStream
+  audio?:IAudioStream
+  video?:IVideoStream
 }
 
 
