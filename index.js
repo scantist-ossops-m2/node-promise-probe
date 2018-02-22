@@ -16,6 +16,12 @@ function ffprobe(file) {
             catch (err) {
                 return reject(err);
             }
+            for (let i = 0; i < ffprobed.streams.length; i++) {
+                if (ffprobed.streams[i].codec_type === 'video')
+                    ffprobed.video = ffprobed.streams[i];
+                if (ffprobed.streams[i].codec_type === 'audio')
+                    ffprobed.audio = ffprobed.streams[i];
+            }
             resolve(ffprobed);
         });
     });

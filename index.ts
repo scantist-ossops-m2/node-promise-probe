@@ -22,7 +22,27 @@ export interface IFFFormat {
   }
 }
 
-export interface IStream {
+
+export interface IVideoStream extends IStream {
+  sample_aspect_ratio:string
+  display_aspect_ratio: string
+  pix_fmt: string
+  level: number
+}
+export interface IAudioStream extends IStream {
+  sample_fmt:string
+  sample_rate:string
+  channels:number
+  channel_layout:string
+
+}
+export interface IStream { // TODO: must be typed better
+
+  sample_fmt?:string
+  sample_rate?:string
+  channels?:number
+  channel_layout?:string
+
   index: number
   codec_name: string
   codec_long_name: string
@@ -36,17 +56,17 @@ export interface IStream {
   coded_width: number
   coded_height: number
   has_b_frames: number
-  sample_aspect_ratio: string
-  display_aspect_ratio: string
-  pix_fmt: string
-  level: number
-  color_range: string
-  color_space: string
-  color_transfer: string
-  color_primaries: string
-  chroma_location: string
-  refs: number
-  is_avc: string
+  sample_aspect_ratio?: string
+  display_aspect_ratio?: string
+  pix_fmt?: string
+  level?: number
+  color_range?: string
+  color_space?: string
+  color_transfer?: string
+  color_primaries?: string
+  chroma_location?: string
+  refs?: number
+  is_avc?: string
   nal_length_size: string
   r_frame_rate: string
   avg_frame_rate: string
@@ -82,7 +102,9 @@ export interface IStream {
 
 export interface IFfprobe {
   streams: IStream[],
-  format: IFFFormat
+  format: IFFFormat,
+  audio:IAudioStream
+  video:IVideoStream
 }
 
 
@@ -100,6 +122,14 @@ export function ffprobe(file: string): Promise<IFfprobe> {
         ffprobed = JSON.parse(stdout)
       } catch (err) {
         return reject(err)
+      }
+
+
+
+      for(let i=0;i<ffprobed.streams.length;i++){
+        if(ffprobed.streams[i].codec_type==='video') ffprobed.video=<IVideoStream>ffprobed.streams[i]
+        if(ffprobed.streams[i].codec_type==='audio') ffprobed.audio=<IAudioStream>ffprobed.streams[i]
+
       }
 
 
