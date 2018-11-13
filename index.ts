@@ -143,9 +143,11 @@ export function ffprobe(file: string): Promise<IFfprobe> {
 export function createMuteOgg(outputFile: string, options: { seconds: number, sampleRate: number, numOfChannels: number }) {
   return new Promise<true>((resolve, reject) => {
 
-    exec('ffmpeg -f lavfi -i anullsrc=r=' + options.sampleRate + ':cl=' + options.numOfChannels + ' -t ' + options.seconds + ' -c:a libvorbis ' + outputFile, (error, stdout, stderr) => {
-      if (error) return reject(error)
-      if (!stdout) return reject(new Error('can\'t probe file ' + outputFile))
+    const ch = (options.numOfChannels === 1) ? 'mono' : 'stereo'
+
+    exec('ffmpeg -f lavfi -i anullsrc=r=' + options.sampleRate + ':cl=' + ch + ' -t ' + options.seconds + ' -c:a libvorbis ' + outputFile, (error, stdout, stderr) => {
+      // if (error) return reject(error)
+      // if (!stdout) return reject(new Error('can\'t probe file ' + outputFile))
 
       resolve(true)
 
@@ -157,7 +159,7 @@ export function createMuteOgg(outputFile: string, options: { seconds: number, sa
 export function cloneOggAsMuted(inputFile: string, outputFile: string, seconds?: number) {
   return new Promise<true>((resolve, reject) => {
     ffprobe(inputFile).then((probed) => {
-
+      if (!seconds) seconds = parseInt(probed.format.duration)
       createMuteOgg(outputFile, { seconds: seconds, sampleRate: parseInt(probed.audio.sample_rate), numOfChannels: probed.audio.channels }).then(() => {
         resolve(true)
       }).catch((err) => {
