@@ -27,4 +27,30 @@ function ffprobe(file) {
     });
 }
 exports.ffprobe = ffprobe;
+function createMuteOgg(outputFile, options) {
+    return new Promise((resolve, reject) => {
+        child_process_1.exec('ffmpeg -f lavfi -i anullsrc=r=' + options.sampleRate + ':cl=' + options.numOfChannels + ' -t ' + options.seconds + ' -c:a libvorbis ' + outputFile, (error, stdout, stderr) => {
+            if (error)
+                return reject(error);
+            if (!stdout)
+                return reject(new Error('can\'t probe file ' + outputFile));
+            resolve(true);
+        });
+    });
+}
+exports.createMuteOgg = createMuteOgg;
+function cloneOggAsMuted(inputFile, outputFile, seconds) {
+    return new Promise((resolve, reject) => {
+        ffprobe(inputFile).then((probed) => {
+            createMuteOgg(outputFile, { seconds: seconds, sampleRate: parseInt(probed.audio.sample_rate), numOfChannels: probed.audio.channels }).then(() => {
+                resolve(true);
+            }).catch((err) => {
+                reject(err);
+            });
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+exports.cloneOggAsMuted = cloneOggAsMuted;
 //# sourceMappingURL=index.js.map

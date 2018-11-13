@@ -1,5 +1,5 @@
-import * as Promise from "bluebird"
-import { exec } from "child_process"
+import * as Promise from 'bluebird'
+import { exec } from 'child_process'
 
 export interface IFFFormat {
   filename: string
@@ -22,9 +22,8 @@ export interface IFFFormat {
   }
 }
 
-
 export interface IVideoStream extends IStream {
-  sample_aspect_ratio:string
+  sample_aspect_ratio: string
   display_aspect_ratio: string
   pix_fmt: string
   level: number
@@ -38,18 +37,18 @@ export interface IVideoStream extends IStream {
 
 }
 export interface IAudioStream extends IStream {
-  sample_fmt:string
-  sample_rate:string
-  channels:number
-  channel_layout:string
+  sample_fmt: string
+  sample_rate: string
+  channels: number
+  channel_layout: string
 
 }
 export interface IStream { // TODO: must be typed better
 
-  sample_fmt?:string
-  sample_rate?:string
-  channels?:number
-  channel_layout?:string
+  sample_fmt?: string
+  sample_rate?: string
+  channels?: number
+  channel_layout?: string
 
   index: number
   codec_name: string
@@ -107,14 +106,12 @@ export interface IStream { // TODO: must be typed better
   }
 }
 
-
 export interface IFfprobe {
   streams: IStream[],
   format: IFFFormat,
-  audio?:IAudioStream
-  video?:IVideoStream
+  audio?: IAudioStream
+  video?: IVideoStream
 }
-
 
 export function ffprobe(file: string): Promise<IFfprobe> {
 
@@ -132,20 +129,43 @@ export function ffprobe(file: string): Promise<IFfprobe> {
         return reject(err)
       }
 
-
-
-      for(let i=0;i<ffprobed.streams.length;i++){
-        if(ffprobed.streams[i].codec_type==='video') ffprobed.video=<IVideoStream>ffprobed.streams[i]
-        if(ffprobed.streams[i].codec_type==='audio') ffprobed.audio=<IAudioStream>ffprobed.streams[i]
+      for (let i = 0; i < ffprobed.streams.length; i++) {
+        if (ffprobed.streams[i].codec_type === 'video') ffprobed.video = ffprobed.streams[i] as IVideoStream
+        if (ffprobed.streams[i].codec_type === 'audio') ffprobed.audio = ffprobed.streams[i] as IAudioStream
 
       }
-
-
       resolve(ffprobed)
+    })
+  })
 
+}
+
+export function createMuteOgg(outputFile: string, options: { seconds: number, sampleRate: number, numOfChannels: number }) {
+  return new Promise<true>((resolve, reject) => {
+
+    exec('ffmpeg -f lavfi -i anullsrc=r=' + options.sampleRate + ':cl=' + options.numOfChannels + ' -t ' + options.seconds + ' -c:a libvorbis ' + outputFile, (error, stdout, stderr) => {
+      if (error) return reject(error)
+      if (!stdout) return reject(new Error('can\'t probe file ' + outputFile))
+
+      resolve(true)
 
     })
+  })
 
+}
+
+export function cloneOggAsMuted(inputFile: string, outputFile: string, seconds?: number) {
+  return new Promise<true>((resolve, reject) => {
+    ffprobe(inputFile).then((probed) => {
+
+      createMuteOgg(outputFile, { seconds: seconds, sampleRate: parseInt(probed.audio.sample_rate), numOfChannels: probed.audio.channels }).then(() => {
+        resolve(true)
+      }).catch((err) => {
+        reject(err)
+      })
+    }).catch((err) => {
+      reject(err)
+    })
 
   })
 
