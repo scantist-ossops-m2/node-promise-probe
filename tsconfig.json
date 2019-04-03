@@ -1,14 +1,21 @@
 {
-  "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "declaration": false,
-    "noImplicitAny": false,
-    "removeComments": true,
-    "noLib": false,
-    "sourceMap": true
-  },
-  "exclude": [
-    "node_modules"
-  ]
+	"compilerOptions": {
+		"target": "es6",
+		"module": "commonjs",
+		"declaration": false,
+		"noImplicitAny": false,
+		"removeComments": true,
+		"noLib": false,
+		"noImplicitUseStrict": true,
+		"sourceMap": true,
+		"strictNullChecks": false
+	},
+	"exclude": [
+		"node_modules"
+	],
+	"linterOptions": {
+		"exclude": [
+			"node_modules/**/*.{j,t}s"
+		]
+	}
 }
