@@ -9,8 +9,6 @@
     "sourceMap": true
   },
   "exclude": [
-    "node_modules",
-    "production_modules",
-    "typings"
+    "node_modules"
   ]
 }
