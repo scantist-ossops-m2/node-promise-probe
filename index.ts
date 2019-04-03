@@ -1,4 +1,3 @@
-import * as Promise from 'bluebird'
 import { exec } from 'child_process'
 
 export interface IFFFormat {
