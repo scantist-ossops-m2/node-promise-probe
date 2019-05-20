@@ -130,7 +130,7 @@ export function ffprobe(file: string): Promise<IFfprobe> {
 
       for (let i = 0; i < ffprobed.streams.length; i++) {
         if (ffprobed.streams[i].codec_type === 'video') ffprobed.video = ffprobed.streams[i] as IVideoStream
-        if (ffprobed.streams[i].codec_type === 'audio') ffprobed.audio = ffprobed.streams[i] as IAudioStream
+        if (ffprobed.streams[i].codec_type === 'audio' && ffprobed.streams[i].channels) ffprobed.audio = ffprobed.streams[i] as IAudioStream
 
       }
       resolve(ffprobed)

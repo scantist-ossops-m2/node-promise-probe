@@ -17,7 +17,7 @@ function ffprobe(file) {
             for (let i = 0; i < ffprobed.streams.length; i++) {
                 if (ffprobed.streams[i].codec_type === 'video')
                     ffprobed.video = ffprobed.streams[i];
-                if (ffprobed.streams[i].codec_type === 'audio')
+                if (ffprobed.streams[i].codec_type === 'audio' && ffprobed.streams[i].channels)
                     ffprobed.audio = ffprobed.streams[i];
             }
             resolve(ffprobed);
