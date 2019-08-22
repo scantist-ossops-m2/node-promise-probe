@@ -145,7 +145,7 @@ export function createMuteOgg(outputFile: string, options: { seconds: number, sa
     const ch = (options.numOfChannels === 1) ? 'mono' : 'stereo'
 
     exec('ffmpeg -f lavfi -i anullsrc=r=' + options.sampleRate + ':cl=' + ch + ' -t ' + options.seconds + ' -c:a libvorbis ' + outputFile, (error, stdout, stderr) => {
-      // if (error) return reject(error)
+      if (error) return reject(error)
       // if (!stdout) return reject(new Error('can\'t probe file ' + outputFile))
 
       resolve(true)
