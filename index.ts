@@ -114,7 +114,7 @@ export interface IFfprobe {
 
 export function ffprobe(file: string): Promise<IFfprobe> {
   return new Promise<IFfprobe>((resolve, reject) => {
-    if (!file) throw new Error('no file provided')
+    if (!file) return reject(new Error('no file provided'))
 
     stat(file, (err, stats) => {
       if (err) return reject(new Error('wrong file provided'))

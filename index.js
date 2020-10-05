@@ -4,7 +4,7 @@ const fs_1 = require("fs");
 function ffprobe(file) {
     return new Promise((resolve, reject) => {
         if (!file)
-            throw new Error('no file provided');
+            return reject(new Error('no file provided'));
         fs_1.stat(file, (err, stats) => {
             if (err)
                 return reject(new Error('wrong file provided'));
