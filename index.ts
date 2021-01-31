@@ -1,6 +1,5 @@
 import { exec } from 'child_process'
 import { stat } from 'fs'
-import { reject } from 'bluebird'
 
 export interface IFFFormat {
   filename: string
@@ -112,7 +111,7 @@ export interface IFfprobe {
   video?: IVideoStream
 }
 
-export function ffprobe(file: string): Promise<IFfprobe> {
+function ffprobe(file: string): Promise<IFfprobe> {
   return new Promise<IFfprobe>((resolve, reject) => {
     if (!file) return reject(new Error('no file provided'))
 
@@ -142,61 +141,6 @@ export function ffprobe(file: string): Promise<IFfprobe> {
   })
 }
 
-export function createMuteOgg(
-  outputFile: string,
-  options: { seconds: number; sampleRate: number; numOfChannels: number }
-) {
-  return new Promise<true>((resolve, reject) => {
-    if (!outputFile || !options || !options.seconds || !options.sampleRate || !options.numOfChannels)
-      return reject(new Error('malformed props to createMuteOgg'))
 
-    if (
-      !Number.isInteger(options.seconds) ||
-      !Number.isInteger(options.sampleRate) ||
-      !Number.isInteger(options.numOfChannels)
-    )
-      return reject(new Error('malformed numerico options prop for createMuteOgg'))
 
-    const ch = options.numOfChannels === 1 ? 'mono' : 'stereo'
-
-    exec(
-      'ffmpeg -f lavfi -i anullsrc=r=' +
-        options.sampleRate +
-        ':cl=' +
-        ch +
-        ' -t ' +
-        options.seconds +
-        ' -c:a libvorbis ' +
-        outputFile,
-      (error, stdout, stderr) => {
-        if (error) return reject(error)
-        // if (!stdout) return reject(new Error('can\'t probe file ' + outputFile))
-
-        resolve(true)
-      }
-    )
-  })
-}
-
-export function cloneOggAsMuted(inputFile: string, outputFile: string, seconds?: number) {
-  return new Promise<true>((resolve, reject) => {
-    ffprobe(inputFile)
-      .then(probed => {
-        if (!seconds) seconds = parseInt(probed.format.duration)
-        createMuteOgg(outputFile, {
-          seconds: seconds,
-          sampleRate: parseInt(probed.audio.sample_rate),
-          numOfChannels: probed.audio.channels
-        })
-          .then(() => {
-            resolve(true)
-          })
-          .catch(err => {
-            reject(err)
-          })
-      })
-      .catch(err => {
-        reject(err)
-      })
-  })
-}
+export default ffprobe
