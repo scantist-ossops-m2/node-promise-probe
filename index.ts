@@ -1,5 +1,6 @@
 import { exec } from 'child_process'
 import { stat } from 'fs'
+import { reject } from 'bluebird'
 
 export interface IFFFormat {
   filename: string
@@ -116,7 +117,7 @@ export function ffprobe(file: string): Promise<IFfprobe> {
     if (!file) throw new Error('no file provided')
 
     stat(file, (err, stats) => {
-      if (err) throw err
+      if (err) return reject(new Error('wrong file provided'))
 
       exec('ffprobe -v quiet -print_format json -show_format -show_streams ' + file, (error, stdout, stderr) => {
         if (error) return reject(error)
@@ -146,6 +147,16 @@ export function createMuteOgg(
   options: { seconds: number; sampleRate: number; numOfChannels: number }
 ) {
   return new Promise<true>((resolve, reject) => {
+    if (!outputFile || !options || !options.seconds || !options.sampleRate || !options.numOfChannels)
+      return reject(new Error('malformed props to createMuteOgg'))
+
+    if (
+      !Number.isInteger(options.seconds) ||
+      !Number.isInteger(options.sampleRate) ||
+      !Number.isInteger(options.numOfChannels)
+    )
+      return reject(new Error('malformed numerico options prop for createMuteOgg'))
+
     const ch = options.numOfChannels === 1 ? 'mono' : 'stereo'
 
     exec(
