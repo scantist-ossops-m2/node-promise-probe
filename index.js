@@ -7,7 +7,7 @@ function ffprobe(file) {
             throw new Error('no file provided');
         fs_1.stat(file, (err, stats) => {
             if (err)
-                throw err;
+                return reject(new Error('wrong file provided'));
             child_process_1.exec('ffprobe -v quiet -print_format json -show_format -show_streams ' + file, (error, stdout, stderr) => {
                 if (error)
                     return reject(error);
@@ -34,6 +34,12 @@ function ffprobe(file) {
 exports.ffprobe = ffprobe;
 function createMuteOgg(outputFile, options) {
     return new Promise((resolve, reject) => {
+        if (!outputFile || !options || !options.seconds || !options.sampleRate || !options.numOfChannels)
+            return reject(new Error('malformed props to createMuteOgg'));
+        if (!Number.isInteger(options.seconds) ||
+            !Number.isInteger(options.sampleRate) ||
+            !Number.isInteger(options.numOfChannels))
+            return reject(new Error('malformed numerico options prop for createMuteOgg'));
         const ch = options.numOfChannels === 1 ? 'mono' : 'stereo';
         child_process_1.exec('ffmpeg -f lavfi -i anullsrc=r=' +
             options.sampleRate +
